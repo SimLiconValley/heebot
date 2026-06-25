@@ -45,7 +45,7 @@ func main() {
 		discordgo.IntentsDirectMessages |
 		discordgo.IntentsMessageContent
 
-	// 🚀 [수정] 디스코드가 열리기 전에 파일 서버를 먼저 완벽하게 가동합니다.
+	// [수정] 디스코드가 열리기 전에 파일 서버를 먼저 완벽하게 가동합니다.
 	utils.StartFileServer(dg)
 	fmt.Println("[HTTP 서버] 로컬 파일 서버가 가동되었습니다.")
 
@@ -61,9 +61,6 @@ func main() {
 		fmt.Println("\n[디스코드] 봇을 안전하게 종료합니다.")
 		dg.Close()
 	}()
-
-	// 💡 6. 파일 서버 시작 (디스코드 연결 성공 후 dg 세션을 넘겨서 실행)
-	utils.StartFileServer(dg)
 
 	// 7. 디스코드 서버에 슬래시 명령어 등록 (commands/base.go에 정의된 리스트 활용)
 	fmt.Println("[빗금 명령어] 일괄 동기화 중...")
