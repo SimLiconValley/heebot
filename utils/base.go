@@ -21,7 +21,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 
 var ButtonHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate, customID string){
 	"delete_file_": HandleYtDeleteButton,
-	"yt_retry_":    HandleYtRetryButton, // 👈 여기에 재시도 버튼 핸들러를 등록합니다.
+	"yt_retry_":    HandleYtRetryButton,
 	"mty_btn_":     HandleMtyDownloadButton,
 	"mty_nav_":     HandleMtyNavigation,
 }
