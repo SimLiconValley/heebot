@@ -43,7 +43,8 @@ func main() {
 	// 4. 게이트웨이 인텐트 설정
 	dg.Identify.Intents = discordgo.IntentsGuildMessages |
 		discordgo.IntentsDirectMessages |
-		discordgo.IntentsMessageContent
+		discordgo.IntentsMessageContent |
+		discordgo.IntentsGuildVoiceStates
 
 	// [수정] 디스코드가 열리기 전에 파일 서버를 먼저 완벽하게 가동합니다.
 	utils.StartFileServer(dg)
