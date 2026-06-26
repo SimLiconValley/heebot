@@ -14,6 +14,7 @@ type Config struct {
 	Port              int    `json:"port"`
 	TempDirectoryName string `json:"temp_directory_name"`
 	ExpirySeconds     int    `json:"expiry_seconds"`
+	AdminPassword     string `json:"admin_password"`
 }
 
 var AppConfig Config
