@@ -62,7 +62,7 @@ var ManageCommand = &discordgo.ApplicationCommand{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "type",
-					Description: "채널 유형을 선택하세요.",
+					Description: "유형을 선택하세요.",
 					Required:    true,
 					Choices: []*discordgo.ApplicationCommandOptionChoice{
 						{Name: "텍스트 채널 (Text)", Value: "text"},
@@ -74,14 +74,17 @@ var ManageCommand = &discordgo.ApplicationCommand{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "name",
-					Description: "생성할 채널의 이름",
+					Description: "새 항목의 이름",
 					Required:    true,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category_id",
-					Description: "소속시킬 카테고리 ID (선택 사항)",
+					Type:        discordgo.ApplicationCommandOptionChannel,
+					Name:        "category",
+					Description: "소속시킬 카테고리를 선택하세요. (선택 사항)",
 					Required:    false,
+					ChannelTypes: []discordgo.ChannelType{
+						discordgo.ChannelTypeGuildCategory,
+					},
 				},
 			},
 		},
@@ -91,28 +94,40 @@ var ManageCommand = &discordgo.ApplicationCommand{
 			Description: "채널을 삭제합니다.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "channel_id",
-					Description: "삭제할 채널 혹은 카테고리의 ID",
+					Type:        discordgo.ApplicationCommandOptionChannel, // 💡 자동완성 팝업
+					Name:        "channel",
+					Description: "삭제할 채널 혹은 카테고리를 선택하세요.",
 					Required:    true,
+					ChannelTypes: []discordgo.ChannelType{
+						discordgo.ChannelTypeGuildText,
+						discordgo.ChannelTypeGuildVoice,
+						discordgo.ChannelTypeGuildCategory,
+						discordgo.ChannelTypeGuildNews,
+					},
 				},
 			},
 		},
 		{
 			Type:        discordgo.ApplicationCommandOptionSubCommand,
 			Name:        "rename",
-			Description: "채널 이름을 변경합니다.",
+			Description: "채널/카테고리 이름을 변경합니다.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "channel_id",
-					Description: "이름을 바꿀 채널 ID",
+					Type:        discordgo.ApplicationCommandOptionChannel, // 💡 String에서 Channel로 변경
+					Name:        "channel",
+					Description: "이름을 바꿀 채널 혹은 카테고리를 선택하세요.",
 					Required:    true,
+					ChannelTypes: []discordgo.ChannelType{
+						discordgo.ChannelTypeGuildText,
+						discordgo.ChannelTypeGuildVoice,
+						discordgo.ChannelTypeGuildCategory,
+						discordgo.ChannelTypeGuildNews,
+					},
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "new_name",
-					Description: "새로운 채널 이름",
+					Description: "새로운 이름",
 					Required:    true,
 				},
 			},
@@ -123,10 +138,16 @@ var ManageCommand = &discordgo.ApplicationCommand{
 			Description: "채널 순서를 변경합니다.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "channel_id",
-					Description: "이동할 채널 ID",
+					Type:        discordgo.ApplicationCommandOptionChannel,
+					Name:        "channel",
+					Description: "이동할 채널 혹은 카테고리를 선택하세요.",
 					Required:    true,
+					ChannelTypes: []discordgo.ChannelType{
+						discordgo.ChannelTypeGuildText,
+						discordgo.ChannelTypeGuildVoice,
+						discordgo.ChannelTypeGuildCategory,
+						discordgo.ChannelTypeGuildNews,
+					},
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionInteger,
@@ -142,10 +163,14 @@ var ManageCommand = &discordgo.ApplicationCommand{
 			Description: "예쁜 임베드 박스 형태로 공지를 발송합니다.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "channel_id",
-					Description: "공지를 올릴 채널 ID",
+					Type:        discordgo.ApplicationCommandOptionChannel,
+					Name:        "channel",
+					Description: "공지를 올릴 텍스트 또는 뉴스 채널을 선택하세요.",
 					Required:    true,
+					ChannelTypes: []discordgo.ChannelType{
+						discordgo.ChannelTypeGuildText, // 일반 텍스트 채널
+						discordgo.ChannelTypeGuildNews, // 뉴스/공지 채널
+					},
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -167,15 +192,21 @@ var ManageCommand = &discordgo.ApplicationCommand{
 			Description: "특정 채널의 메시지/공지를 삭제합니다.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "channel_id",
-					Description: "메시지가 있는 채널 ID",
+					Type:        discordgo.ApplicationCommandOptionChannel, // 💡 String에서 Channel로 변경
+					Name:        "channel",
+					Description: "메시지가 있는 채널을 선택하세요.",
 					Required:    true,
+					// 🔒 메시지가 생성될 수 있는 채널 유형만 노출
+					ChannelTypes: []discordgo.ChannelType{
+						discordgo.ChannelTypeGuildText,  // 일반 텍스트 채널
+						discordgo.ChannelTypeGuildNews,  // 뉴스/공지 채널
+						discordgo.ChannelTypeGuildVoice, // 음성 채널 (음성 채널 내 채팅 기능 대응)
+					},
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "message_id",
-					Description: "삭제할 메시지 고유 ID",
+					Description: "삭제할 메시지 고유 ID (메시지 우클릭 후 ID 복사)",
 					Required:    true,
 				},
 			},
@@ -186,9 +217,9 @@ var ManageCommand = &discordgo.ApplicationCommand{
 			Description: "유저를 지정한 시간 동안 뮤트 시킵니다.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "user_id",
-					Description: "처벌할 유저의 고유 ID",
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "처벌할 유저를 선택하거나 검색하세요.",
 					Required:    true,
 				},
 				{
@@ -400,8 +431,9 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		channelName := subOptionMap["name"].StringValue()
 
 		var categoryID string
-		if opt, ok := subOptionMap["category_id"]; ok {
-			categoryID = opt.StringValue()
+		// 💡 category_id -> category 로 변경 및 ChannelValue(s).ID 추출
+		if opt, ok := subOptionMap["category"]; ok {
+			categoryID = opt.ChannelValue(s).ID
 		}
 
 		var discordChannelType discordgo.ChannelType
@@ -432,7 +464,8 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 
 	case "delete":
-		targetID := subOptionMap["channel_id"].StringValue()
+		// 💡 channel_id -> channel 로 변경 및 ChannelValue(s).ID 추출
+		targetID := subOptionMap["channel"].ChannelValue(s).ID
 		if _, err := s.ChannelDelete(targetID); err != nil {
 			responseMessage = "❌ 삭제 실패: " + err.Error()
 		} else {
@@ -440,7 +473,8 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 
 	case "rename":
-		targetID := subOptionMap["channel_id"].StringValue()
+		// 💡 channel_id -> channel 로 변경 및 ChannelValue(s).ID 추출
+		targetID := subOptionMap["channel"].ChannelValue(s).ID
 		newName := subOptionMap["new_name"].StringValue()
 		_, err := s.ChannelEdit(targetID, &discordgo.ChannelEdit{Name: newName})
 		if err != nil {
@@ -450,7 +484,8 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 
 	case "move":
-		targetID := subOptionMap["channel_id"].StringValue()
+		// 💡 channel_id -> channel 로 변경 및 ChannelValue(s).ID 추출
+		targetID := subOptionMap["channel"].ChannelValue(s).ID
 		pos := int(subOptionMap["position"].IntValue())
 		_, err := s.ChannelEdit(targetID, &discordgo.ChannelEdit{Position: &pos})
 		if err != nil {
@@ -460,7 +495,8 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 
 	case "announce":
-		targetChannelID := subOptionMap["channel_id"].StringValue()
+		// 💡 channel_id -> channel 로 변경 및 ChannelValue(s).ID 추출
+		targetChannelID := subOptionMap["channel"].ChannelValue(s).ID
 		title := subOptionMap["title"].StringValue()
 		description := strings.ReplaceAll(subOptionMap["description"].StringValue(), "\\n", "\n")
 
@@ -482,7 +518,8 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 
 	case "delete_message":
-		targetChannelID := subOptionMap["channel_id"].StringValue()
+		// 💡 channel_id -> channel 로 변경 및 ChannelValue(s).ID 추출 (message_id는 유지)
+		targetChannelID := subOptionMap["channel"].ChannelValue(s).ID
 		targetMessageID := subOptionMap["message_id"].StringValue()
 
 		err := s.ChannelMessageDelete(targetChannelID, targetMessageID)
@@ -493,7 +530,8 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 
 	case "timeout":
-		targetUserID := subOptionMap["user_id"].StringValue()
+		// 💡 user_id -> user 로 변경 및 UserValue(s).ID 추출
+		targetUserID := subOptionMap["user"].UserValue(s).ID
 		minutes := subOptionMap["minutes"].IntValue()
 
 		var until *time.Time
@@ -516,6 +554,7 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 
 	case "ban":
+		// 💡 user_id -> user 로 변경 및 UserValue(s).ID 추출
 		targetUserID := subOptionMap["user_id"].StringValue()
 		reason := "관리자 수동 차단"
 		if opt, ok := subOptionMap["reason"]; ok {
@@ -530,6 +569,7 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 
 	case "unban":
+		// ⚠️ unban은 기존 기획대로 String 형태의 user_id를 유지합니다.
 		targetUserID := subOptionMap["user_id"].StringValue()
 
 		err := s.GuildBanDelete(i.GuildID, targetUserID)
