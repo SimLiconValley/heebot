@@ -24,7 +24,8 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 	"say":       HandleSay,
 	"vc":        HandleVc,
 	"manage":    HandleManage,
-	"superuser": HandleSuperUser,
+	"superuser": HandleSuperUser,,
+
 }
 
 var ButtonHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate, customID string){
