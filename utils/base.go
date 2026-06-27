@@ -13,14 +13,18 @@ var AllCommands = []*discordgo.ApplicationCommand{
 	HelpCommand,
 	SayCommand,
 	VcCommand,
+	ManageCommand,
+	SuperUserCommand,
 }
 
 var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 	//"yt":   HandleYt,
 	//"mty":  HandleMty,
-	"help": HandleHelp,
-	"say":  HandleSay,
-	"vc":   HandleVc,
+	"help":      HandleHelp,
+	"say":       HandleSay,
+	"vc":        HandleVc,
+	"manage":    HandleManage,
+	"superuser": HandleSuperUser,
 }
 
 var ButtonHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate, customID string){

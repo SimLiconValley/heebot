@@ -9,15 +9,19 @@ import (
 )
 
 type Config struct {
-	Token             string `json:"token"`
-	Domain            string `json:"domain"`
-	Port              int    `json:"port"`
-	TempDirectoryName string `json:"temp_directory_name"`
-	ExpirySeconds     int    `json:"expiry_seconds"`
-	AdminPassword     string `json:"admin_password"`
+	Token             string   `json:"token"`
+	Domain            string   `json:"domain"`
+	Port              int      `json:"port"`
+	TempDirectoryName string   `json:"temp_directory_name"`
+	ExpirySeconds     int      `json:"expiry_seconds"`
+	AdminPassword     string   `json:"admin_password"`
+	AdminWhiteListIds []string `json:"admin_whitelist_ids"`
 }
 
-var AppConfig Config
+var (
+	AppConfig         Config
+	adminWhiteListMap = make(map[string]bool)
+)
 
 func LoadConfig() error {
 	file, err := os.Open("config.json")
@@ -44,5 +48,18 @@ func LoadConfig() error {
 	pureDir := filepath.Base(AppConfig.TempDirectoryName)
 	AppConfig.TempDirectoryName = strings.Trim(pureDir, "./ ")
 
+	// 💡 불러온 슬라이스(배열) 데이터를 조회용 맵으로 변환
+	// 기존 맵 초기화 후 데이터 삽입
+	adminWhiteListMap = make(map[string]bool)
+	for _, id := range AppConfig.AdminWhiteListIds {
+		trimmedID := strings.TrimSpace(id)
+		if trimmedID != "" {
+			adminWhiteListMap[trimmedID] = true
+		}
+	}
 	return nil
+}
+
+func IsAdminWhiteList(userID string) bool {
+	return adminWhiteListMap[userID]
 }
