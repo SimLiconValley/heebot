@@ -57,7 +57,7 @@ var ManageCommand = &discordgo.ApplicationCommand{
 		{
 			Type:        discordgo.ApplicationCommandOptionSubCommand,
 			Name:        "create",
-			Description: "새로운 채널을 생성합니다.",
+			Description: "새로운 채널/카테고리를 생성합니다.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -91,7 +91,7 @@ var ManageCommand = &discordgo.ApplicationCommand{
 		{
 			Type:        discordgo.ApplicationCommandOptionSubCommand,
 			Name:        "delete",
-			Description: "채널을 삭제합니다.",
+			Description: "채널/카테고리를 삭제합니다.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionChannel, // 💡 자동완성 팝업
@@ -484,16 +484,34 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 
 	case "move":
-		// 💡 channel_id -> channel 로 변경 및 ChannelValue(s).ID 추출
+		// 1. 옮길 채널 ID와 원하는 위치(Position) 가져오기
 		targetID := subOptionMap["channel"].ChannelValue(s).ID
 		pos := int(subOptionMap["position"].IntValue())
-		_, err := s.ChannelEdit(targetID, &discordgo.ChannelEdit{Position: &pos})
+
+		// 2. 현재 채널의 기존 정보(카테고리 ID 등)를 먼저 조회합니다.
+		currentChannel, err := s.Channel(targetID)
+		if err != nil {
+			responseMessage = "❌ 채널 정보 조회 실패: " + err.Error()
+			break
+		}
+
+		// 3. ChannelEdit 구조체에 Position과 더불어 기존 ParentID(카테고리)를 함께 묶어서 전송합니다.
+		// 이렇게 해야 디스코드가 "어느 카테고리 안에서의 몇 번 위치"인지 정확히 인식합니다.
+		editData := &discordgo.ChannelEdit{
+			Position: &pos,
+		}
+
+		// 카테고리 안에 있는 채널이라면 부모 ID를 명시해 줍니다.
+		if currentChannel.ParentID != "" {
+			editData.ParentID = currentChannel.ParentID
+		}
+
+		_, err = s.ChannelEdit(targetID, editData)
 		if err != nil {
 			responseMessage = "❌ 순서 변경 실패: " + err.Error()
 		} else {
 			responseMessage = "✅ 채널이 " + strconv.Itoa(pos) + "번 위치로 이동했습니다."
 		}
-
 	case "announce":
 		// 💡 channel_id -> channel 로 변경 및 ChannelValue(s).ID 추출
 		targetChannelID := subOptionMap["channel"].ChannelValue(s).ID
@@ -503,10 +521,10 @@ func HandleManage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		embed := &discordgo.MessageEmbed{
 			Title:       title,
 			Description: description,
-			Color:       0x00FF00,
+			Color:       0x0000FF,
 			Timestamp:   time.Now().Format(time.RFC3339),
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: "히봇 공지",
+				Text: "공지",
 			},
 		}
 
