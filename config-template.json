@@ -5,5 +5,8 @@
     "temp_directory_name": "temp",
     "expiry_seconds": 18000,
     
-    "admin_password": "1331"
+    "admin_password": "1331",
+    "admin_whitelist_ids": [
+        "user_id"
+    ]
 }
