@@ -11,7 +11,7 @@ var AllCommands = []*discordgo.ApplicationCommand{
 	//YtCommand,
 	//MtyCommand,
 	HelpCommand,
-	VcCommand,
+	//VcCommand,
 
 	SuperUserCommand,
 	ManageCommand,
@@ -23,7 +23,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 	//"mty":  HandleMty,
 	"help": HandleHelp,
 
-	"vc": HandleVc,
+	//"vc": HandleVc,
 
 	"superuser": HandleSuperUser,
 	"manage":    HandleManage,
